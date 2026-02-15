@@ -139,7 +139,6 @@ body {
   border-color: var(--rune-primary);
 }
 .log-filter-group input[type="number"] { width: 5rem; }
-.log-filter-group input[type="text"] { width: 12rem; }
 
 .log-checkbox-group {
   display: flex;
@@ -202,6 +201,7 @@ body {
 .log-pagination-btns {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 /* --- Dark mode toggle --- */
@@ -229,3 +229,36 @@ body {
   color: var(--rune-muted-fg);
   font-size: 0.875rem;
 }
+
+/* --- Table toolbar (search) --- */
+.log-table-toolbar {
+  margin-bottom: 0.75rem;
+}
+.log-search-input {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--rune-input-bg);
+  color: var(--rune-fg);
+  outline: none;
+  width: 20rem;
+  max-width: 100%;
+}
+.log-search-input:focus {
+  border-color: var(--rune-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* --- Sortable table headers --- */
+.rune-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.rune-table th.sortable:hover {
+  color: var(--rune-primary);
+}
+
+/* --- Wider regex input for traffic tab --- */
+.log-filter-group input[type="text"] { width: 16rem; }

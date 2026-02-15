@@ -235,7 +235,7 @@ send_chart <- function(session, chart_id, config) {
 #' @param event A list with: id (element ID), type (event type), and payload data.
 dispatch_event <- function(session, event) {
   element_id <- event$id
-  event_type <- event$type
+  event_type <- event$event
 
   if (is.null(session$handlers[[element_id]])) {
     return(invisible(NULL))

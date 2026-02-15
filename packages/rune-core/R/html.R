@@ -49,10 +49,14 @@ rune_node <- function(tag, ...) {
 #' Render a rune_node tree to an HTML string.
 render_html <- function(node) {
   if (is.character(node)) {
-    return(escape_html(node))
+    return(paste(escape_html(node), collapse = ""))
+  }
+  # Handle plain lists (e.g. nested list of rune_nodes from tab content)
+  if (is.list(node) && is.null(node$tag) && !inherits(node, "rune_node")) {
+    return(paste(vapply(node, render_html, character(1)), collapse = ""))
   }
   if (!inherits(node, "rune_node")) {
-    return(escape_html(as.character(node)))
+    return(escape_html(paste(as.character(node), collapse = "")))
   }
 
   # Void elements (self-closing)

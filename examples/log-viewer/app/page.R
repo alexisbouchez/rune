@@ -107,14 +107,7 @@ geolocate_ips <- function(ips) {
   }, character(1))
 }
 
-# Pre-fetch geolocation for all unique IPs at startup (only once)
-if (nrow(ALL_LOGS) > 0 && !exists(".geo_done", envir = .GlobalEnv)) {
-  cat("Fetching IP geolocation data...\n")
-  unique_ips <- unique(ALL_LOGS$ip)
-  geolocate_ips(unique_ips)
-  cat(sprintf("Geolocated %d unique IPs\n", length(unique_ips)))
-  assign(".geo_done", TRUE, envir = .GlobalEnv)
-}
+# Geo lookup is done lazily per-page (only the ~50 IPs visible at a time)
 
 # Helper to get country for a vector of IPs (uses cache only, no network)
 get_countries <- function(ips) {
@@ -158,9 +151,12 @@ page <- function(params, session) {
   time_n         <- signal("30")
   exclude_bots   <- signal(TRUE)
   exclude_static <- signal(TRUE)
-  regex_filter   <- signal("")
+  regex_filter   <- signal("^/$--^/articles")
   dark_mode      <- signal(FALSE)
   table_page     <- signal(1L)
+  table_search   <- signal("")
+  table_sort_col <- signal("Time")
+  table_sort_asc <- signal(FALSE)
   TABLE_PAGE_SIZE <- 50L
 
   # =========================================================================
@@ -185,13 +181,6 @@ page <- function(params, session) {
     if (exclude_static$get()) {
       df <- df[!grepl(STATIC_PATTERN, df$path, ignore.case = TRUE), ]
     }
-
-    rx <- regex_filter$get()
-    if (nzchar(rx)) {
-      keep <- tryCatch(grepl(rx, df$path, ignore.case = TRUE),
-                       error = function(e) rep(TRUE, nrow(df)))
-      df <- df[keep, ]
-    }
     df
   })
 
@@ -215,7 +204,42 @@ page <- function(params, session) {
     exclude_static$set(e$value == "true"); table_page$set(1L)
   })
   on_input("filter-regex", function(e, s) {
-    regex_filter$set(e$value); table_page$set(1L)
+    regex_filter$set(e$value)
+  })
+
+  on_input("table-search", function(e, s) {
+    table_search$set(e$value); table_page$set(1L)
+  })
+
+  on_click("sort-IP", function(e, s) {
+    if (table_sort_col$get() == "IP") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("IP"); table_sort_asc$set(TRUE) }
+    table_page$set(1L)
+  })
+  on_click("sort-Country", function(e, s) {
+    if (table_sort_col$get() == "Country") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("Country"); table_sort_asc$set(TRUE) }
+    table_page$set(1L)
+  })
+  on_click("sort-Time", function(e, s) {
+    if (table_sort_col$get() == "Time") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("Time"); table_sort_asc$set(FALSE) }
+    table_page$set(1L)
+  })
+  on_click("sort-Path", function(e, s) {
+    if (table_sort_col$get() == "Path") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("Path"); table_sort_asc$set(TRUE) }
+    table_page$set(1L)
+  })
+  on_click("sort-Status", function(e, s) {
+    if (table_sort_col$get() == "Status") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("Status"); table_sort_asc$set(TRUE) }
+    table_page$set(1L)
+  })
+  on_click("sort-Size", function(e, s) {
+    if (table_sort_col$get() == "Size") table_sort_asc$set(!table_sort_asc$get())
+    else { table_sort_col$set("Size"); table_sort_asc$set(FALSE) }
+    table_page$set(1L)
   })
 
   on_click("dark-toggle", function(e, s) {
@@ -280,22 +304,60 @@ page <- function(params, session) {
         "h" = "%Y-%m-%d %H:00", "d" = "%Y-%m-%d", "w" = "%Y-W%W",
         "m" = "%Y-%m", "y" = "%Y", "%Y-%m-%d"
       )
-      buckets <- table(format(df$timestamp, fmt))
-      labs <- names(buckets)
-      vals <- as.integer(buckets)
-      ord <- order(labs)
-      labs <- labs[ord]; vals <- vals[ord]
+
+      # Parse multi-regex patterns (separated by --)
+      rx_raw <- regex_filter$get()
+      patterns <- if (nzchar(rx_raw)) {
+        trimws(strsplit(rx_raw, "--", fixed = TRUE)[[1]])
+      } else {
+        character(0)
+      }
+      patterns <- patterns[nzchar(patterns)]
+
+      if (length(patterns) == 0) {
+        # No patterns: show total traffic as single line
+        buckets <- table(format(df$timestamp, fmt))
+        labs <- names(buckets)
+        vals <- as.integer(buckets)
+        ord <- order(labs)
+        labs <- labs[ord]; vals <- vals[ord]
+        datasets <- list(list(
+          label = "All requests", data = vals,
+          borderColor = CHART_COLORS[1],
+          backgroundColor = "rgba(59,130,246,0.1)",
+          fill = TRUE, tension = 0.3, pointRadius = 2
+        ))
+      } else {
+        # One line per regex pattern
+        # Collect all bucket labels across patterns for a shared x-axis
+        all_buckets <- format(df$timestamp, fmt)
+        all_labels <- sort(unique(all_buckets))
+
+        datasets <- lapply(seq_along(patterns), function(pi) {
+          pat <- patterns[pi]
+          matched <- tryCatch(grepl(pat, df$path, ignore.case = TRUE),
+                              error = function(e) rep(FALSE, nrow(df)))
+          sub_df <- df[matched, ]
+          if (nrow(sub_df) == 0) {
+            vals <- rep(0L, length(all_labels))
+          } else {
+            sub_buckets <- table(factor(format(sub_df$timestamp, fmt),
+                                        levels = all_labels))
+            vals <- as.integer(sub_buckets)
+          }
+          color_idx <- ((pi - 1L) %% length(CHART_COLORS)) + 1L
+          list(
+            label = pat, data = vals,
+            borderColor = CHART_COLORS[color_idx],
+            fill = FALSE, tension = 0.3, pointRadius = 2
+          )
+        })
+        labs <- all_labels
+      }
 
       send_chart(sess, "line-chart", list(
         type = "line",
-        data = list(
-          labels = labs,
-          datasets = list(list(
-            label = "Requests", data = vals,
-            borderColor = "#3b82f6", backgroundColor = "rgba(59,130,246,0.1)",
-            fill = TRUE, tension = 0.3, pointRadius = 2
-          ))
-        ),
+        data = list(labels = labs, datasets = datasets),
         options = list(
           responsive = TRUE, maintainAspectRatio = FALSE,
           plugins = list(
@@ -347,9 +409,9 @@ page <- function(params, session) {
       ),
       if (active_tab$get() == "traffic") {
         div(class = "log-filter-group",
-          label_("URL regex", `for` = "filter-regex"),
+          label_("Regex (separate with --)", `for` = "filter-regex"),
           input(id = "filter-regex", type = "text", value = regex_filter$get(),
-                placeholder = "/articles/.*")
+                placeholder = "^/$--^/articles")
         )
       }
     )
@@ -383,33 +445,99 @@ page <- function(params, session) {
 
   render_data_tab <- function() {
     df <- filtered_data$get()
-    if (nrow(df) == 0) {
-      return(div(class = "log-empty", "No data matches the current filters."))
+
+    # Search filter
+    search_val <- table_search$get()
+    if (nzchar(search_val)) {
+      keep <- tryCatch({
+        grepl(search_val, df$ip, ignore.case = TRUE) |
+        grepl(search_val, df$path, ignore.case = TRUE) |
+        grepl(search_val, df$ua, ignore.case = TRUE) |
+        grepl(search_val, as.character(df$status), fixed = TRUE)
+      }, error = function(e) rep(TRUE, nrow(df)))
+      df <- df[keep, ]
     }
+
+    if (nrow(df) == 0) {
+      return(list(
+        div(class = "log-table-toolbar",
+          input(id = "table-search", type = "text", value = search_val,
+                placeholder = "Search IP, path, UA, status...",
+                class = "log-search-input")
+        ),
+        div(class = "log-empty", "No data matches the current filters.")
+      ))
+    }
+
+    # Sort
+    sort_col <- table_sort_col$get()
+    sort_asc <- table_sort_asc$get()
+    sort_field <- switch(sort_col,
+      "IP" = "ip", "Country" = "ip", "Time" = "timestamp",
+      "Path" = "path", "Status" = "status", "Size" = "size",
+      "timestamp"
+    )
+    ord <- order(df[[sort_field]], decreasing = !sort_asc)
+    df <- df[ord, ]
+
+    # Paginate
     pg <- table_page$get()
     max_pg <- max(1L, ceiling(nrow(df) / TABLE_PAGE_SIZE))
     if (pg > max_pg) pg <- max_pg
     s <- (pg - 1L) * TABLE_PAGE_SIZE + 1L
     e <- min(pg * TABLE_PAGE_SIZE, nrow(df))
     pdf <- df[s:e, , drop = FALSE]
+
+    # Lazy geolocate
+    page_ips <- unique(pdf$ip)
+    geolocate_ips(page_ips)
     codes <- get_country_codes(pdf$ip)
     flags <- country_flag(codes)
     countries <- get_countries(pdf$ip)
-    location <- ifelse(nzchar(flags),
-                        paste(flags, countries),
-                        countries)
-    ddf <- data.frame(
-      IP = pdf$ip,
-      Country = location,
-      Time = format(pdf$timestamp, "%Y-%m-%d %H:%M:%S"),
-      Method = pdf$method,
-      Path = pdf$path,
-      Status = as.character(pdf$status),
-      Size = format(pdf$size, big.mark = ","),
-      stringsAsFactors = FALSE
+    location <- ifelse(nzchar(flags), paste(flags, countries), countries)
+
+    # Sort indicator
+    cur_col <- table_sort_col$get()
+    arrow <- if (table_sort_asc$get()) " \u25B2" else " \u25BC"
+    col_label <- function(name) {
+      if (name == cur_col) paste0(name, arrow) else name
+    }
+
+    # Build sortable table manually
+    header_cells <- list(
+      th(class = "sortable", `data-rune-click` = "sort-IP", col_label("IP")),
+      th(class = "sortable", `data-rune-click` = "sort-Country", col_label("Country")),
+      th(class = "sortable", `data-rune-click` = "sort-Time", col_label("Time")),
+      th("Method"),
+      th(class = "sortable", `data-rune-click` = "sort-Path", col_label("Path")),
+      th(class = "sortable", `data-rune-click` = "sort-Status", col_label("Status")),
+      th(class = "sortable", `data-rune-click` = "sort-Size", col_label("Size"))
     )
+
+    body_rows <- lapply(seq_len(nrow(pdf)), function(i) {
+      tr(
+        td(pdf$ip[i]),
+        td(location[i]),
+        td(format(pdf$timestamp[i], "%Y-%m-%d %H:%M:%S")),
+        td(pdf$method[i]),
+        td(pdf$path[i]),
+        td(as.character(pdf$status[i])),
+        td(format(pdf$size[i], big.mark = ","))
+      )
+    })
+
     list(
-      Table(ddf),
+      div(class = "log-table-toolbar",
+        input(id = "table-search", type = "text", value = search_val,
+              placeholder = "Search IP, path, UA, status...",
+              class = "log-search-input")
+      ),
+      div(class = "rune-table-wrapper",
+        table_(class = "rune-table",
+          thead(tr(header_cells)),
+          tbody(body_rows)
+        )
+      ),
       div(class = "log-pagination",
         span(paste0("Showing ", s, "-", e, " of ", nrow(df), " rows")),
         div(class = "log-pagination-btns",

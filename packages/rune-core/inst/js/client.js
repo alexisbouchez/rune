@@ -130,7 +130,7 @@
 
   function sendEvent(id, type, payload) {
     if (ws && ws.readyState === WebSocket.OPEN) {
-      var msg = { type: "event", id: id, "type": type };
+      var msg = { type: "event", id: id, event: type };
       // Merge payload
       if (payload) {
         for (var key in payload) {
