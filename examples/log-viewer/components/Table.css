@@ -1,0 +1,28 @@
+/* Rune UI: Table */
+.rune-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+}
+.rune-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.rune-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--rune-border);
+  background: var(--rune-muted);
+  color: var(--rune-muted-fg);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+.rune-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--rune-border);
+}
+.rune-table tr:last-child td { border-bottom: none; }
+.rune-table tr:hover td { background: var(--rune-muted); }

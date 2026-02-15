@@ -1,0 +1,54 @@
+/* Rune UI: Dialog */
+.rune-dialog-hidden {
+  display: none;
+}
+
+.rune-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.rune-dialog {
+  background: var(--rune-bg);
+  border-radius: var(--rune-radius);
+  max-width: 32rem;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.rune-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 0;
+}
+
+.rune-dialog-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.rune-dialog-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--rune-muted-fg);
+  padding: 0;
+  line-height: 1;
+}
+
+.rune-dialog-close:hover {
+  color: var(--rune-fg);
+}
+
+.rune-dialog-body {
+  padding: 1.5rem;
+}

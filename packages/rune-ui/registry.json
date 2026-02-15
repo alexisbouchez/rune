@@ -1,0 +1,49 @@
+{
+  "name": "rune-ui",
+  "version": "0.1.0",
+  "description": "Rune UI component library. Components are copied into your app.",
+  "components": [
+    {
+      "name": "Button",
+      "description": "A styled button with variants",
+      "file": "Button.R",
+      "css": "Button.css",
+      "dependencies": []
+    },
+    {
+      "name": "Card",
+      "description": "A container card with header/body/footer",
+      "file": "Card.R",
+      "css": "Card.css",
+      "dependencies": []
+    },
+    {
+      "name": "Input",
+      "description": "A styled text input with label",
+      "file": "Input.R",
+      "css": "Input.css",
+      "dependencies": []
+    },
+    {
+      "name": "Dialog",
+      "description": "A modal dialog overlay",
+      "file": "Dialog.R",
+      "css": "Dialog.css",
+      "dependencies": ["Button"]
+    },
+    {
+      "name": "Table",
+      "description": "A styled data table",
+      "file": "Table.R",
+      "css": "Table.css",
+      "dependencies": []
+    },
+    {
+      "name": "Toast",
+      "description": "A toast notification",
+      "file": "Toast.R",
+      "css": "Toast.css",
+      "dependencies": []
+    }
+  ]
+}

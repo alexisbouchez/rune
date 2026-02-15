@@ -1,0 +1,24 @@
+/* Rune UI: Card */
+.rune-card {
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+  background: var(--rune-card-bg);
+  overflow: hidden;
+}
+.rune-card-header { padding: 1.5rem 1.5rem 0; }
+.rune-card-body { padding: 1.5rem; }
+.rune-card-footer {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.rune-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.rune-card-desc {
+  font-size: 0.875rem;
+  color: var(--rune-muted-fg);
+  margin-top: 0.25rem;
+}

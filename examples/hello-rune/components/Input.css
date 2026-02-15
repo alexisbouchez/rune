@@ -1,0 +1,33 @@
+/* Rune UI: Input */
+.rune-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.rune-input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.rune-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--rune-bg);
+  color: var(--rune-fg);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.rune-input:focus {
+  border-color: var(--rune-primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.rune-input::placeholder {
+  color: var(--rune-muted-fg);
+}

@@ -1,0 +1,117 @@
+/* =============================================================================
+   Rune Default Theme
+   =============================================================================
+   CSS custom properties (tokens) that all components reference.
+   Edit this file to customize your app's appearance.
+   ============================================================================= */
+
+:root {
+  --rune-bg: #ffffff;
+  --rune-fg: #111111;
+  --rune-primary: #2563eb;
+  --rune-primary-fg: #ffffff;
+  --rune-muted: #f3f4f6;
+  --rune-muted-fg: #6b7280;
+  --rune-border: #e5e7eb;
+  --rune-radius: 0.5rem;
+  --rune-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Base reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--rune-font);
+  background: var(--rune-bg);
+  color: var(--rune-fg);
+  line-height: 1.6;
+}
+
+a { color: var(--rune-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+hr { border: none; border-top: 1px solid var(--rune-border); margin: 1rem 0; }
+
+/* Layout */
+.rune-app {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.rune-nav {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rune-border);
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
+}
+
+.rune-nav a { font-weight: 500; }
+
+.rune-main {
+  min-height: 60vh;
+}
+
+.rune-footer {
+  margin-top: 3rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--rune-border);
+  color: var(--rune-muted-fg);
+  font-size: 0.875rem;
+}
+
+/* Demo-specific styles */
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+
+.subtitle {
+  color: var(--rune-muted-fg);
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+}
+
+.demo-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .demo-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.counter-display {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.counter-derived {
+  color: var(--rune-muted-fg);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.counter-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.echo-output {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--rune-muted);
+  border-radius: var(--rune-radius);
+  min-height: 2.5rem;
+}
+
+ul, ol {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}

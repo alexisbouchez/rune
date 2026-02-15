@@ -1,0 +1,40 @@
+/* Rune UI: Button */
+.rune-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--rune-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, opacity 0.15s;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+.rune-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.rune-btn--default { padding: 0.5rem 1rem; }
+.rune-btn--sm { padding: 0.25rem 0.75rem; font-size: 0.8125rem; }
+.rune-btn--lg { padding: 0.75rem 1.5rem; font-size: 1rem; }
+.rune-btn--default {
+  background: var(--rune-primary);
+  color: var(--rune-primary-fg);
+}
+.rune-btn--default:hover:not(:disabled) { opacity: 0.9; }
+.rune-btn--primary {
+  background: var(--rune-primary);
+  color: var(--rune-primary-fg);
+}
+.rune-btn--primary:hover:not(:disabled) { opacity: 0.9; }
+.rune-btn--outline {
+  background: transparent;
+  color: var(--rune-fg);
+  border-color: var(--rune-border);
+}
+.rune-btn--outline:hover:not(:disabled) { background: var(--rune-muted); }
+.rune-btn--ghost {
+  background: transparent;
+  color: var(--rune-fg);
+}
+.rune-btn--ghost:hover:not(:disabled) { background: var(--rune-muted); }

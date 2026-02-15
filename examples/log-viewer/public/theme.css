@@ -1,0 +1,231 @@
+/* =============================================================================
+   Log Viewer Theme - Light / Dark mode via CSS variables
+   ============================================================================= */
+
+:root {
+  --rune-bg: #ffffff;
+  --rune-card-bg: #ffffff;
+  --rune-input-bg: #ffffff;
+  --rune-fg: #1a1a2e;
+  --rune-muted: #f4f4f5;
+  --rune-muted-fg: #71717a;
+  --rune-border: #e4e4e7;
+  --rune-primary: #3b82f6;
+  --rune-primary-fg: #ffffff;
+  --rune-radius: 0.5rem;
+  --rune-kpi-bg: #eff6ff;
+  --rune-kpi-fg: #1d4ed8;
+  --rune-tab-active-bg: var(--rune-primary);
+  --rune-tab-active-fg: #ffffff;
+  --rune-tab-bg: var(--rune-muted);
+  --rune-tab-fg: var(--rune-fg);
+}
+
+body.dark {
+  --rune-bg: #0f172a;
+  --rune-card-bg: #1e293b;
+  --rune-input-bg: #1e293b;
+  --rune-fg: #e2e8f0;
+  --rune-muted: #334155;
+  --rune-muted-fg: #94a3b8;
+  --rune-border: #334155;
+  --rune-primary: #3b82f6;
+  --rune-primary-fg: #ffffff;
+  --rune-kpi-bg: #1e3a5f;
+  --rune-kpi-fg: #60a5fa;
+  --rune-tab-active-bg: var(--rune-primary);
+  --rune-tab-active-fg: #ffffff;
+  --rune-tab-bg: #1e293b;
+  --rune-tab-fg: #94a3b8;
+}
+
+/* --- Base Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--rune-bg);
+  color: var(--rune-fg);
+  line-height: 1.6;
+}
+
+/* --- App Layout --- */
+.log-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* --- Top bar --- */
+.log-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rune-border);
+}
+.log-topbar h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.log-topbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* --- Tab bar --- */
+.log-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--rune-border);
+  padding-bottom: 0;
+}
+.log-tab {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--rune-tab-fg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.log-tab:hover { color: var(--rune-fg); }
+.log-tab.active {
+  color: var(--rune-primary);
+  border-bottom-color: var(--rune-primary);
+}
+
+/* --- Filter row --- */
+.log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+}
+.log-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.log-filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rune-muted-fg);
+}
+.log-filter-group select,
+.log-filter-group input[type="number"],
+.log-filter-group input[type="text"] {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--rune-input-bg);
+  color: var(--rune-fg);
+  outline: none;
+}
+.log-filter-group select:focus,
+.log-filter-group input:focus {
+  border-color: var(--rune-primary);
+}
+.log-filter-group input[type="number"] { width: 5rem; }
+.log-filter-group input[type="text"] { width: 12rem; }
+
+.log-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0;
+  font-size: 0.875rem;
+}
+.log-checkbox-group input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--rune-primary);
+}
+
+/* --- KPI row --- */
+.log-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.log-kpi {
+  background: var(--rune-kpi-bg);
+  border-radius: var(--rune-radius);
+  padding: 1rem 1.25rem;
+}
+.log-kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rune-muted-fg);
+  margin-bottom: 0.25rem;
+}
+.log-kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--rune-kpi-fg);
+}
+
+/* --- Chart container --- */
+.log-chart-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+.log-chart-container canvas {
+  width: 100% !important;
+}
+
+/* --- Pagination --- */
+.log-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--rune-muted-fg);
+}
+.log-pagination-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* --- Dark mode toggle --- */
+.dark-toggle {
+  background: var(--rune-muted);
+  color: var(--rune-fg);
+  border: 1px solid var(--rune-border);
+  border-radius: var(--rune-radius);
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+.dark-toggle:hover { opacity: 0.8; }
+
+/* --- Misc --- */
+.log-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.log-empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--rune-muted-fg);
+  font-size: 0.875rem;
+}
